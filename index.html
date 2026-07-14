@@ -91,45 +91,46 @@
     </div>
 
     <script>
-        // --- GANTI BAGIAN INI DENGAN DATA DARI NOTEPAD KAMU ---
-        const SUPABASE_URL = 'https://bgxcyhelvesrjlgqzlpg.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJneGN5aGVsdmVzcmpsZ3F6bHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjE3MzQsImV4cCI6MjA5OTU5NzczNH0.eRbFwhily8DtfIHSptTV5U8zTehZCEANiZ0qEIt5uzc';
-        // ------------------------------------------------------
+    // --- KONFIGURASI ---
+    const SUPABASE_URL = 'https://bgxcyhelvesrjlgqzlpg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJneGN5aGVsdmVzcmpsZ3F6bHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjE3MzQsImV4cCI6MjA5OTU5NzczNH0.eRbFwhily8DtfIHSptTV5U8zTehZCEANiZ0qEIt5uzc';
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Inisialisasi Supabase
+    const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function kirimPesan() {
-            const nama = document.getElementById('nama').value;
-            const pesan = document.getElementById('pesan').value;
-            const tombol = document.getElementById('btnKirim');
+    async function kirimPesan() {
+        const namaInput = document.getElementById('nama');
+        const pesanInput = document.getElementById('pesan');
+        const tombol = document.getElementById('btnKirim');
 
-            if(!nama || !pesan) {
-                alert("Hei! Nama dan Pesan tidak boleh kosong.");
-                return;
-            }
+        if(!namaInput.value || !pesanInput.value) {
+            alert("Nama dan Pesan wajib diisi!");
+            return;
+        }
 
-            // Ubah teks tombol saat loading
-            tombol.innerText = "Mengirim...";
-            tombol.disabled = true;
+        tombol.innerText = "Mengirim...";
+        tombol.disabled = true;
 
-            // Proses mengirim ke Supabase
-            const { data, error } = await supabase
+        try {
+            const { error } = await sbClient
                 .from('pesan_vj')
-                .insert([{ nama_pengirim: nama, isi_pesan: pesan }]);
+                .insert([
+                    { nama_pengirim: namaInput.value, isi_pesan: pesanInput.value }
+                ]);
 
-            if (error) {
-                alert("Gagal mengirim pesan! Coba lagi.");
-                console.error(error);
-            } else {
-                alert("PESAN DITERIMA! Silakan tunjukkan layar ini dan bayar QRIS ke staff.");
-                // Mengosongkan form setelah berhasil
-                document.getElementById('nama').value = '';
-                document.getElementById('pesan').value = '';
-            }
-            
+            if (error) throw error;
+
+            alert("Pesan Berhasil Terkirim!");
+            namaInput.value = '';
+            pesanInput.value = '';
+        } catch (err) {
+            console.error("Error Detail:", err);
+            alert("Gagal: " + err.message);
+        } finally {
             tombol.innerText = "Kirim Pesan";
             tombol.disabled = false;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
