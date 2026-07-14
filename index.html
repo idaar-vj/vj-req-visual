@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Visual</title>
+    <!-- Memanggil library Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Desain ala Club (Dark Theme) */
+        body { 
+            background-color: #0f0f0f; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            background: #1a1a1a; 
+            padding: 30px; 
+            border-radius: 15px; 
+            width: 85%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+            border: 1px solid #333;
+        }
+        h2 { 
+            text-align: center; 
+            margin-top: 0; 
+            letter-spacing: 2px;
+            color: #f1c40f; /* Warna emas premium */
+        }
+        p {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            background: #2a2a2a; 
+            color: white; 
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        input:focus, textarea:focus {
+            outline: 2px solid #f1c40f;
+        }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #f1c40f; 
+            color: #000; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button:hover { 
+            background: #d4ac0d; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>TAMPIL DI LAYAR!</h2>
+        <p>Ketik pesanmu, tunjukkan bukti transfer QRIS ke staff, dan lihat namamu di layar utama.</p>
+        
+        <input type="text" id="nama" placeholder="Nama Kamu (Max 15 huruf)" maxlength="15">
+        
+        <!-- Ini adalah kunci untuk pesan memanjang/enter -->
+        <textarea id="pesan" rows="4" placeholder="Ketik pesan panjangmu di sini..."></textarea>
+        
+        <button id="btnKirim" onclick="kirimPesan()">Kirim Pesan</button>
+    </div>
+
+    <script>
+        // --- GANTI BAGIAN INI DENGAN DATA DARI NOTEPAD KAMU ---
+        const SUPABASE_URL = 'https://bgxcyhelvesrjlgqzlpg.supabase.co/rest/v1/';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJneGN5aGVsdmVzcmpsZ3F6bHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMjE3MzQsImV4cCI6MjA5OTU5NzczNH0.eRbFwhily8DtfIHSptTV5U8zTehZCEANiZ0qEIt5uzc';
+        // ------------------------------------------------------
+
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function kirimPesan() {
+            const nama = document.getElementById('nama').value;
+            const pesan = document.getElementById('pesan').value;
+            const tombol = document.getElementById('btnKirim');
+
+            if(!nama || !pesan) {
+                alert("Hei! Nama dan Pesan tidak boleh kosong.");
+                return;
+            }
+
+            // Ubah teks tombol saat loading
+            tombol.innerText = "Mengirim...";
+            tombol.disabled = true;
+
+            // Proses mengirim ke Supabase
+            const { data, error } = await supabase
+                .from('pesan_vj')
+                .insert([{ nama_pengirim: nama, isi_pesan: pesan }]);
+
+            if (error) {
+                alert("Gagal mengirim pesan! Coba lagi.");
+                console.error(error);
+            } else {
+                alert("PESAN DITERIMA! Silakan tunjukkan layar ini dan bayar QRIS ke staff.");
+                // Mengosongkan form setelah berhasil
+                document.getElementById('nama').value = '';
+                document.getElementById('pesan').value = '';
+            }
+            
+            tombol.innerText = "Kirim Pesan";
+            tombol.disabled = false;
+        }
+    </script>
+</body>
+</html>
